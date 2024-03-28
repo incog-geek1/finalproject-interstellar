@@ -1,39 +1,21 @@
-name: Deploy
+name: Deploy Code to Release Branch
 on:
-  push:
-    branches: main
-  pull_request:
-    branches: main
+  workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy
+  build:
+    name: Push to Release Branch
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write # Needed for auth with Deno Deploy
-      contents: read # Needed to clone the repository
-
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install Deno
-        uses: denoland/setup-deno@v1
+      # Workflow dispatch event that pushes the current version to the release branch.
+      # From here the secondary production deployment workflow will trigger to build the dependencies.
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          deno-version: v1.x
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-
-      - name: Install step
-        run: "npm install"
-
-      - name: Upload to Deno Deploy
-        uses: denoland/deployctl@v1
-        with:
-          project: "incog-geek1-finalprojec-85"
-          entrypoint: "index.html"
-          root: "public"
+          branch: releases/v4
+          folder: .
+          clean: false
+          single-commit: true
